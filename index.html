@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Todo List</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"],
+        input[type="url"] {
+            padding: 5px;
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 5px 10px;
+        }
+
+        .todo-item {
+            list-style: none;
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .todo-item .logo {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #ccc;
+            margin-right: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .todo-item .logo img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .todo-item a {
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Todo List</h1>
+    <form id="todo-form">
+        <input type="text" id="shortcut-input" placeholder="Add shortcut name" required>
+        <input type="url" id="url-input" placeholder="Add URL link" required>
+        <button type="submit">Add</button>
+    </form>
+    <ul id="todo-list"></ul>
+
+    <script>
+
+        const form = document.getElementById('todo-form');
+        const shortcutInput = document.getElementById('shortcut-input');
+        const urlInput = document.getElementById('url-input');
+        const todoList = document.getElementById('todo-list');
+        let todos = [];
+
+        // Retrieve todos from Local Storage
+        if (localStorage.getItem('todos')) {
+            todos = JSON.parse(localStorage.getItem('todos'));
+            todos.forEach(todo => {
+                const listItem = createListItem(todo.shortcut, todo.url, todo.favicon);
+                todoList.appendChild(listItem);
+            });
+        }
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const shortcut = shortcutInput.value.trim();
+            const url = urlInput.value.trim();
+
+            if (shortcut !== '' && url !== '') {
+                const favicon = getFavicon(url);
+                const todo = {
+                    shortcut: shortcut,
+                    url: url,
+                    favicon: favicon
+                };
+
+                todos.push(todo);
+                localStorage.setItem('todos', JSON.stringify(todos));
+
+                const listItem = createListItem(shortcut, url, favicon);
+                todoList.appendChild(listItem);
+
+                // Clear inputs
+                shortcutInput.value = '';
+                urlInput.value = '';
+            }
+        });
+
+        function createListItem(shortcut, url, favicon) {
+            const listItem = document.createElement('li');
+            listItem.classList.add('todo-item');
+
+            const logo = document.createElement('div');
+            logo.classList.add('logo');
+            if (favicon) {
+                const logoImg = document.createElement('img');
+                logoImg.src = favicon;
+                logo.appendChild(logoImg);
+            }
+
+            const link = document.createElement('a');
+            link.href = url;
+            link.target = '_blank';
+            link.textContent = shortcut;
+
+            listItem.appendChild(logo);
+            listItem.appendChild(link);
+
+            return listItem;
+        }
+
+        function getFavicon(url) {
+            const domain = extractDomain(url);
+            return `https://www.google.com/s2/favicons?domain=${domain}`;
+        }
+
+        function extractDomain(url) {
+            let domain;
+            if (url.indexOf('://') > -1) {
+                domain = url.split('/')[2];
+            } else {
+                domain = url.split('/')[0];
+            }
+            domain = domain.split(':')[0];
+            return domain;
+        }
+
+    </script>
+</body>
+
+</html>
