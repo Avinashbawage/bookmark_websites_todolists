@@ -28,12 +28,13 @@
         button {
             padding: 5px 10px;
         }
-
+ 
         .todo-item {
             list-style: none;
             display: flex;
             align-items: center;
             margin-bottom: 10px;
+            width: 200px;
         }
 
         .todo-item .logo {
@@ -54,6 +55,21 @@
 
         .todo-item a {
             text-decoration: none;
+            flex-grow: 1;
+        }
+
+        .todo-item .delete-btn {
+ 
+            background-color: white;
+            border: none;
+            border-radius: 50%;
+           margin-left: 10px;  
+            cursor: pointer;
+          color:"#fff"
+        }
+
+        .todo-item .delete-btn:hover {
+            background-color: #fff;
         }
     </style>
 </head>
@@ -68,7 +84,6 @@
     <ul id="todo-list"></ul>
 
     <script>
-
         const form = document.getElementById('todo-form');
         const shortcutInput = document.getElementById('shortcut-input');
         const urlInput = document.getElementById('url-input');
@@ -127,8 +142,17 @@
             link.target = '_blank';
             link.textContent = shortcut;
 
+            const deleteBtn = document.createElement('button');
+            deleteBtn.classList.add('delete-btn');
+            deleteBtn.innerHTML = '&times;';
+            deleteBtn.addEventListener('click', function () {
+                listItem.remove();
+                removeTodoFromStorage(shortcut);
+            });
+
             listItem.appendChild(logo);
             listItem.appendChild(link);
+            listItem.appendChild(deleteBtn);
 
             return listItem;
         }
@@ -149,6 +173,10 @@
             return domain;
         }
 
+        function removeTodoFromStorage(shortcut) {
+            todos = todos.filter(todo => todo.shortcut !== shortcut);
+            localStorage.setItem('todos', JSON.stringify(todos));
+        }
     </script>
 </body>
 
